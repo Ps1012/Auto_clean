@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Clean AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #04080f;
+  --surface: #080f1a;
+  --surface2: #0c1525;
+  --card: #0a1220;
+  --border: #112240;
+  --border2: #1a3a6e;
+  --accent: #0ea5e9;
+  --accent-glow: rgba(14,165,233,0.15);
+  --green: #10b981;
+  --green-glow: rgba(16,185,129,0.15);
+  --orange: #f97316;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --purple: #a855f7;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #475569;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ambient background orbs */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+.orb1 { width: 600px; height: 600px; background: radial-gradient(circle, #0ea5e910, transparent); top: -200px; left: -200px; }
+.orb2 { width: 500px; height: 500px; background: radial-gradient(circle, #10b98110, transparent); bottom: -150px; right: -150px; }
+.orb3 { width: 300px; height: 300px; background: radial-gradient(circle, #a855f708, transparent); top: 40%; left: 50%; transform: translate(-50%,-50%); }
+
+.page { position: relative; z-index: 1; }
+
+/* NAV */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  background: rgba(4,8,15,0.8);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.3px;
+}
+
+.nav-logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--green));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.nav-badge {
+  padding: 4px 12px;
+  background: var(--accent-glow);
+  border: 1px solid rgba(14,165,233,0.2);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 80px 24px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  margin-bottom: 28px;
+  animation: fadeDown 0.7s ease both;
+}
+
+.hero-eyebrow-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+h1 {
+  font-size: clamp(2.6rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  animation: fadeDown 0.7s ease 0.1s both;
+}
+
+h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--green) 50%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  margin-top: 20px;
+  color: var(--text2);
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.6;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeDown 0.7s ease 0.2s both;
+}
+
+/* FEATURE PILLS */
+.feature-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 28px auto 0;
+  max-width: 700px;
+  animation: fadeDown 0.7s ease 0.3s both;
+}
+
+.pill {
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill-blue  { background: rgba(14,165,233,0.08); border-color: rgba(14,165,233,0.2); color: var(--accent); }
+.pill-green { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); color: var(--green); }
+.pill-orange{ background: rgba(249,115,22,0.08); border-color: rgba(249,115,22,0.2); color: var(--orange); }
+.pill-purple{ background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.2); color: var(--purple); }
+.pill-yellow{ background: rgba(234,179,8,0.08);  border-color: rgba(234,179,8,0.2);  color: var(--yellow); }
+
+/* MAIN UPLOAD AREA */
+.main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* UPLOAD CARD */
+.upload-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  animation: fadeUp 0.6s ease 0.4s both;
+  margin-bottom: 20px;
+}
+
+.upload-card-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text2);
+}
+
+.upload-card-header-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.drop-zone {
+  padding: 52px 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  background: linear-gradient(135deg, rgba(14,165,233,0.04), rgba(16,185,129,0.02));
+}
+
+.drop-zone.dragover { border: 2px dashed var(--accent); margin: -2px; }
+
+.upload-icon-wrap {
+  width: 72px; height: 72px;
+  margin: 0 auto 20px;
+  position: relative;
+}
+
+.upload-icon-bg {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(16,185,129,0.06));
+  border: 1px solid rgba(14,165,233,0.15);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  transition: transform 0.3s;
+}
+
+.drop-zone:hover .upload-icon-bg { transform: translateY(-4px) scale(1.05); }
+
+.upload-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 28px;
+  border: 1px dashed rgba(14,165,233,0.2);
+  animation: spin-slow 10s linear infinite;
+}
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+
+.drop-zone h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+.drop-zone p { color: var(--text2); font-size: 0.88rem; margin-bottom: 20px; }
+
+.btn-browse {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, var(--accent), #0284c7);
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(14,165,233,0.25);
+}
+
+.btn-browse:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(14,165,233,0.35); }
+
+input[type=file] { display: none; }
+
+.file-selected-bar {
+  display: none;
+  margin: 0 28px 20px;
+  padding: 12px 18px;
+  background: rgba(16,185,129,0.07);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--green);
+  align-items: center;
+  gap: 10px;
+}
+
+/* CONTROLS ROW */
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 28px 20px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-label {
+  font-size: 0.82rem;
+  color: var(--text2);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.control-select {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.84rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.control-select:focus { border-color: var(--accent); }
+
+.btn-run {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 28px;
+  background: linear-gradient(135deg, var(--green), #059669);
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(16,185,129,0.25);
+}
+
+.btn-run:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(16,185,129,0.35); }
+.btn-run:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.error-msg {
+  display: none;
+  margin: 0 28px 16px;
+  padding: 12px 16px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 10px;
+  color: #fca5a5;
+  font-size: 0.84rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* PROGRESS */
+.progress-card {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 20px;
+  animation: fadeUp 0.4s ease;
+}
+
+.progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.progress-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.progress-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.progress-track {
+  height: 5px;
+  background: var(--border);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 100px;
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-steps {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.step-chip {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  transition: all 0.3s;
+}
+
+.step-chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.step-chip.done { border-color: var(--green); color: var(--green); background: var(--green-glow); }
+
+.progress-log {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: var(--text3);
+  max-height: 100px;
+  overflow-y: auto;
+  line-height: 1.9;
+}
+
+.log-item { color: var(--green); }
+
+/* RESULTS */
+.results { display: none; animation: fadeUp 0.5s ease; }
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* SCORE HERO */
+.score-hero {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.score-big {
+  text-align: center;
+  min-width: 140px;
+}
+
+.score-big-label { font-size: 0.75rem; color: var(--text2); font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
+.score-big-num { font-size: 4rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
+.score-big-num.green { color: var(--green); }
+.score-big-num.red { color: var(--red); }
+
+.score-arrow {
+  font-size: 2rem;
+  color: var(--text3);
+}
+
+.score-details { flex: 1; min-width: 200px; }
+.score-improvement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--green-glow);
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 100px;
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.score-bars { display: flex; flex-direction: column; gap: 8px; }
+.score-bar-row { display: flex; align-items: center; gap: 10px; }
+.score-bar-label { font-size: 0.75rem; color: var(--text2); font-family: 'JetBrains Mono', monospace; width: 48px; }
+.score-bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 100px; overflow: hidden; }
+.score-bar-fill { height: 100%; border-radius: 100px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+.score-bar-fill.before { background: linear-gradient(90deg, #ef4444, #f97316); }
+.score-bar-fill.after  { background: linear-gradient(90deg, var(--accent), var(--green)); }
+.score-bar-pct { font-size: 0.78rem; font-family: 'JetBrains Mono', monospace; width: 42px; text-align: right; color: var(--text2); }
+
+/* STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+.stat-icon { font-size: 1.2rem; margin-bottom: 10px; }
+.stat-val { font-size: 2rem; font-weight: 800; line-height: 1; letter-spacing: -0.5px; margin-bottom: 4px; }
+.stat-val.blue { color: var(--accent); }
+.stat-val.green { color: var(--green); }
+.stat-val.orange { color: var(--orange); }
+.stat-val.purple { color: var(--purple); }
+.stat-lbl { font-size: 0.75rem; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+
+/* WARNING */
+.warning-banner {
+  display: none;
+  padding: 12px 18px;
+  background: rgba(234,179,8,0.07);
+  border: 1px solid rgba(234,179,8,0.2);
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: var(--yellow);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+/* TWO COL */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+
+/* DATA CARDS */
+.data-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.data-card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text2);
+}
+
+.data-card-title span { font-size: 1rem; }
+
+table.dtable { width: 100%; border-collapse: collapse; }
+table.dtable th {
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+table.dtable td {
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  vertical-align: top;
+}
+table.dtable tr:last-child td { border-bottom: none; }
+table.dtable tr:hover td { background: rgba(14,165,233,0.03); }
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.badge-numeric  { background: rgba(14,165,233,0.12); color: var(--accent); }
+.badge-categ    { background: rgba(16,185,129,0.10); color: var(--green); }
+.badge-date     { background: rgba(234,179,8,0.10);  color: var(--yellow); }
+.badge-id       { background: rgba(100,116,139,0.12); color: var(--text3); }
+
+/* ANOMALY BARS */
+.anomaly-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.anomaly-item:last-child { border-bottom: none; }
+.anomaly-name { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text2); width: 110px; flex-shrink: 0; }
+.anomaly-track { flex: 1; height: 5px; background: var(--border); border-radius: 100px; overflow: hidden; }
+.anomaly-bar-fill { height: 100%; border-radius: 100px; transition: width 1s ease; }
+.anomaly-count { font-weight: 700; font-size: 0.9rem; width: 24px; text-align: right; }
+
+/* SUMMARY TABLE */
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.action-text {
+  color: var(--text2);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  max-width: 360px;
+  word-break: break-word;
+}
+
+/* CHART */
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.chart-card img { width: 100%; border-radius: 10px; display: block; }
+
+/* DOWNLOAD */
+.download-section {
+  text-align: center;
+  padding: 8px 0 0;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 40px;
+  background: linear-gradient(135deg, var(--green), #059669);
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 6px 30px rgba(16,185,129,0.3);
+}
+
+.btn-download:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(16,185,129,0.4); }
+
+/* ANIMATIONS */
+@keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeUp   { from { opacity:0; transform:translateY(20px); }  to { opacity:1; transform:translateY(0); } }
+@keyframes spin     { to { transform: rotate(360deg); } }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="page">
+
+  <nav>
+    <div class="nav-logo">
+      <div class="nav-logo-icon">🧹</div>
+      Auto Clean AI
+    </div>
+    <div class="nav-badge">v2.0 · ML-Powered</div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-dot"></span>
+      Intelligent Data Preprocessing System
+    </div>
+    <h1>Clean your data.<br><em>Automatically.</em></h1>
+    <p class="hero-sub">
+      Upload any CSV and watch AI detect missing values, anomalies,
+      duplicates, and text inconsistencies — then fix them intelligently.
+    </p>
+    <div class="feature-pills">
+      <span class="pill pill-blue">⚡ ML Imputation</span>
+      <span class="pill pill-green">🎯 Confidence Scores</span>
+      <span class="pill pill-orange">🔍 3-Method Anomaly Detection</span>
+      <span class="pill pill-yellow">📊 Quality Score</span>
+    </div>
+  </section>
+
+  <div class="main">
+
+    <!-- UPLOAD -->
+    <div class="upload-card">
+      <div class="upload-card-header">
+        <div class="upload-card-header-dot"></div>
+        Upload Dataset
+      </div>
+
+      <div class="drop-zone" id="dropZone">
+        <div class="upload-icon-wrap">
+          <div class="upload-icon-bg">📂</div>
+          <div class="upload-ring"></div>
+        </div>
+        <h3>Drop your CSV file here</h3>
+        <p>Supports structured CSV files — student records, employee data, sales data, and more</p>
+        <button class="btn-browse" onclick="document.getElementById('fileInput').click()">
+          Browse Files
+        </button>
+        <input type="file" id="fileInput" accept=".csv">
+      </div>
+
+      <div class="file-selected-bar" id="fileBar">
+        <span>✓</span>
+        <span id="fileName">—</span>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <div class="controls-row">
+        <div class="control-group">
+          <span class="control-label">Anomaly strategy</span>
+          <select class="control-select" id="anomalyStrategy">
+            <option value="flag">Flag anomalies</option>
+            <option value="remove">Remove anomalies</option>
+          </select>
+        </div>
+        <button class="btn-run" id="runBtn" onclick="runPipeline()" disabled>
+          ▶ &nbsp;Run Pipeline
+        </button>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-card" id="progressCard">
+      <div class="progress-top">
+        <div class="progress-title">
+          <div class="spinner"></div>
+          <span id="progressMsg">Initializing...</span>
+        </div>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-steps">
+        <span class="step-chip" id="step-loading">Loading</span>
+        <span class="step-chip" id="step-profiling">Profiling</span>
+        <span class="step-chip" id="step-cleaning">Cleaning</span>
+        <span class="step-chip" id="step-anomaly">Anomaly Detection</span>
+        <span class="step-chip" id="step-imputing">ML Imputation</span>
+        <span class="step-chip" id="step-report">Report</span>
+      </div>
+      <div class="progress-log" id="progressLog"></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results" id="results">
+
+      <div class="section-title">Results</div>
+
+      <!-- Score Hero -->
+      <div class="score-hero">
+        <div class="score-big">
+          <div class="score-big-label">BEFORE</div>
+          <div class="score-big-num red" id="scoreBefore">—</div>
+          <div style="font-size:0.7rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px">quality %</div>
+        </div>
+        <div class="score-arrow">→</div>
+        <div class="score-big">
+          <div class="score-big-label">AFTER</div>
+          <div class="score-big-num green" id="scoreAfter">—</div>
+          <div style="font-size:0.7rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px">quality %</div>
+        </div>
+        <div class="score-details">
+          <div class="score-improvement-badge">
+            ↑ <span id="scoreImprove">—</span>% improvement
+          </div>
+          <div class="score-bars">
+            <div class="score-bar-row">
+              <span class="score-bar-label">Before</span>
+              <div class="score-bar-track"><div class="score-bar-fill before" id="barBefore" style="width:0%"></div></div>
+              <span class="score-bar-pct" id="barBeforePct">—</span>
+            </div>
+            <div class="score-bar-row">
+              <span class="score-bar-label">After</span>
+              <div class="score-bar-track"><div class="score-bar-fill after" id="barAfter" style="width:0%"></div></div>
+              <span class="score-bar-pct" id="barAfterPct">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-val blue" id="statRows">—</div>
+          <div class="stat-lbl">rows processed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔧</div>
+          <div class="stat-val green" id="statMissing">—</div>
+          <div class="stat-lbl">missing filled</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🗑</div>
+          <div class="stat-val green" id="statDupes">—</div>
+          <div class="stat-lbl">duplicates removed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚠</div>
+          <div class="stat-val orange" id="statAnomalies">—</div>
+          <div class="stat-lbl">anomalies found</div>
+        </div>
+      </div>
+
+      <div class="warning-banner" id="warningBanner"></div>
+
+      <!-- Column Types + Anomaly -->
+      <div class="two-col">
+        <div class="data-card">
+          <div class="data-card-title"><span>🔍</span> Column Type Inference</div>
+          <table class="dtable">
+            <thead><tr><th>Column</th><th>Type</th><th>Missing</th></tr></thead>
+            <tbody id="typeTable"></tbody>
+          </table>
+        </div>
+        <div class="data-card">
+          <div class="data-card-title"><span>⚠</span> Anomaly Detection</div>
+          <div id="anomalyItems"></div>
+        </div>
+      </div>
+
+      <!-- Column Summary -->
+      <div class="summary-card">
+        <div class="data-card-title" style="margin-bottom:14px"><span>🧹</span> Column Cleaning Summary</div>
+        <table class="dtable">
+          <thead><tr><th>Column</th><th>Actions Taken</th></tr></thead>
+          <tbody id="summaryTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-card">
+        <div class="data-card-title" style="margin-bottom:14px"><span>📈</span> Visual Quality Report</div>
+        <img id="chartImg" src="" alt="Quality Report Chart">
+      </div>
+
+      <!-- Download -->
+      <div class="download-section">
+        <a class="btn-download" id="dlBtn" href="#" onclick="downloadFile(event)">
+          ⬇ &nbsp;Download Cleaned CSV
+        </a>
+      </div>
+
+    </div><!-- /results -->
+  </div><!-- /main -->
+</div><!-- /page -->
+
+<script>
+let selectedFile = null;
+let cleanedFilename = null;
+
+const STEPS = {
+  loading:   'step-loading',
+  loaded:    'step-loading',
+  profiling: 'step-profiling',
+  cleaning:  'step-cleaning',
+  anomaly:   'step-anomaly',
+  anomaly2:  'step-anomaly',
+  imputing:  'step-imputing',
+  saving:    'step-report',
+  report:    'step-report',
+  done:      'step-report',
+};
+
+const STEP_ORDER = ['step-loading','step-profiling','step-cleaning','step-anomaly','step-imputing','step-report'];
+
+// Drag & Drop
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+function setFile(file) {
+  if (!file.name.endsWith('.csv')) { showError('Only CSV files are supported.'); return; }
+  selectedFile = file;
+  document.getElementById('fileName').textContent = file.name + '  ·  ' + (file.size/1024).toFixed(1) + ' KB';
+  const bar = document.getElementById('fileBar');
+  bar.style.display = 'flex';
+  document.getElementById('runBtn').disabled = false;
+  hideError();
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = '✕  ' + msg;
+  el.style.display = 'block';
+}
+function hideError() { document.getElementById('errorMsg').style.display = 'none'; }
+
+function runPipeline() {
+  if (!selectedFile) return;
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('progressCard').style.display = 'block';
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressLog').innerHTML = '';
+  document.getElementById('progressPct').textContent = '0%';
+  STEP_ORDER.forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+  });
+  hideError();
+
+  const fd = new FormData();
+  fd.append('file', selectedFile);
+  fd.append('anomaly_strategy', document.getElementById('anomalyStrategy').value);
+
+  fetch('/analyze', { method: 'POST', body: fd })
+    .then(res => {
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      let buf = '';
+      function read() {
+        reader.read().then(({ done, value }) => {
+          if (done) return;
+          buf += dec.decode(value, { stream: true });
+          const lines = buf.split('\n');
+          buf = lines.pop();
+          lines.forEach(line => {
+            if (line.startsWith('data: ')) {
+              try { handleEvent(JSON.parse(line.slice(6))); } catch(e) {}
+            }
+          });
+          read();
+        });
+      }
+      read();
+    })
+    .catch(err => {
+      showError('Connection error: ' + err.message);
+      document.getElementById('progressCard').style.display = 'none';
+      document.getElementById('runBtn').disabled = false;
+    });
+}
+
+function handleEvent(item) {
+  if (item.event === 'progress') {
+    const d = item.data;
+    document.getElementById('progressMsg').textContent = d.message;
+    document.getElementById('progressFill').style.width = d.pct + '%';
+    document.getElementById('progressPct').textContent = d.pct + '%';
+
+    // Update step chips
+    const chipId = STEPS[d.step];
+    if (chipId) {
+      const idx = STEP_ORDER.indexOf(chipId);
+      STEP_ORDER.forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.remove('active','done');
+        if (i < idx) el.classList.add('done');
+        else if (i === idx) el.classList.add('active');
+      });
+    }
+
+    const log = document.getElementById('progressLog');
+    const line = document.createElement('div');
+    line.className = 'log-item';
+    line.textContent = '→ ' + d.message;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  if (item.event === 'result') {
+    // Mark all steps done
+    STEP_ORDER.forEach(id => {
+      document.getElementById(id).classList.remove('active');
+      document.getElementById(id).classList.add('done');
+    });
+    setTimeout(() => showResults(item.data), 400);
+  }
+
+  if (item.event === 'error') {
+    showError(item.data.message);
+    document.getElementById('progressCard').style.display = 'none';
+    document.getElementById('runBtn').disabled = false;
+  }
+}
+
+function showResults(data) {
+  document.getElementById('progressCard').style.display = 'none';
+  document.getElementById('runBtn').disabled = false;
+
+  // Scores
+  document.getElementById('scoreBefore').textContent = data.score_before + '%';
+  document.getElementById('scoreAfter').textContent  = data.score_after  + '%';
+  document.getElementById('scoreImprove').textContent = data.improvement;
+  document.getElementById('barBeforePct').textContent = data.score_before + '%';
+  document.getElementById('barAfterPct').textContent  = data.score_after  + '%';
+  setTimeout(() => {
+    document.getElementById('barBefore').style.width = data.score_before + '%';
+    document.getElementById('barAfter').style.width  = data.score_after  + '%';
+  }, 150);
+
+  // Stats
+  document.getElementById('statRows').textContent     = data.rows_before.toLocaleString();
+  document.getElementById('statMissing').textContent  = data.missing_before;
+  document.getElementById('statDupes').textContent    = data.duplicates_fixed;
+  document.getElementById('statAnomalies').textContent= data.anomalies_found;
+
+  // Type table
+  const typeTable = document.getElementById('typeTable');
+  typeTable.innerHTML = '';
+  const missingData = data.missing_info || {};
+  Object.entries(data.inferred_types).forEach(([col, type]) => {
+    const labelMap = { numeric:'Numeric', categorical:'Categorical', date:'Date/Time', id:'ID' };
+    const classMap = { numeric:'badge-numeric', categorical:'badge-categ', date:'badge-date', id:'badge-id' };
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600;color:var(--text)">${col}</td>
+      <td><span class="badge ${classMap[type]||''}">${labelMap[type]||type}</span></td>
+      <td style="color:var(--text3)">—</td>
+    `;
+    typeTable.appendChild(tr);
+  });
+
+  // Anomaly bars
+  const anomalyDiv = document.getElementById('anomalyItems');
+  anomalyDiv.innerHTML = '';
+  const methods = [
+    { label: 'Z-Score',          key: 'zscore',           color: '#f97316' },
+    { label: 'IQR Method',       key: 'iqr',              color: '#eab308' },
+    { label: 'Isolation Forest', key: 'isolation_forest', color: '#a855f7' },
+    { label: 'Consensus (≥2)',   key: 'consensus',        color: '#0ea5e9' },
+  ];
+  const maxV = Math.max(...methods.map(m => data.anomaly_report[m.key]||0), 1);
+  methods.forEach(m => {
+    const count = data.anomaly_report[m.key] || 0;
+    const pct = count / maxV * 100;
+    const div = document.createElement('div');
+    div.className = 'anomaly-item';
+    div.innerHTML = `
+      <span class="anomaly-name">${m.label}</span>
+      <div class="anomaly-track">
+        <div class="anomaly-bar-fill" style="width:0%;background:${m.color}" data-pct="${pct}"></div>
+      </div>
+      <span class="anomaly-count" style="color:${m.color}">${count}</span>
+    `;
+    anomalyDiv.appendChild(div);
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.anomaly-bar-fill').forEach(b => {
+      b.style.width = b.dataset.pct + '%';
+    });
+  }, 200);
+
+  // Summary table
+  const sumTable = document.getElementById('summaryTable');
+  sumTable.innerHTML = '';
+  Object.entries(data.column_summary).forEach(([col, action]) => {
+    const skipped = action === 'Skipped (ID column)';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600;color:var(--text);white-space:nowrap">${col}</td>
+      <td><div class="action-text" style="color:${skipped?'var(--text3)':'var(--text2)'}">${action}</div></td>
+    `;
+    sumTable.appendChild(tr);
+  });
+
+  // High-missing warning
+  if (data.high_missing_cols && data.high_missing_cols.length > 0) {
+    const w = document.getElementById('warningBanner');
+    w.innerHTML = '⚠ &nbsp;High missing data warning: <strong>' +
+      data.high_missing_cols.join(', ') +
+      '</strong> — ML imputation may be unreliable for these columns (>60% missing).';
+    w.style.display = 'block';
+  }
+
+  // Chart
+  document.getElementById('chartImg').src = 'data:image/png;base64,' + data.chart_b64;
+
+  // Download
+  cleanedFilename = data.cleaned_filename;
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function downloadFile(e) {
+  e.preventDefault();
+  if (cleanedFilename) window.location.href = '/download/' + cleanedFilename;
+}
+</script>
+</body>
+</html>
